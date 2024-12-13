@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 86a76d7ed302b164c88b7f0d1e397a6d
+guid: e577cb09a40b82148a488851116ed574
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7780619108686187649
-    second: Rounded Rectangle 50%_0
+      213: 1068382127750822211
+    second: u23332_55b36d40s5_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rounded Rectangle 50%_0
+      name: u23332_55b36d40s5_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 512
-        height: 512
+        x: 4
+        y: 4
+        width: 527
+        height: 196
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -114,8 +114,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f73b426e420b50490800000000000000
-      internalID: -7780619108686187649
+      spriteID: 349b6f872e7a3de00800000000000000
+      internalID: 1068382127750822211
       vertices: []
       indices: 
       edges: []
@@ -123,7 +123,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -131,7 +131,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Rounded Rectangle 50%_0: -7780619108686187649
+      u23332_55b36d40s5_0: 1068382127750822211
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

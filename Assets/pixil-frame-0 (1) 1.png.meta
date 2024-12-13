@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 86a76d7ed302b164c88b7f0d1e397a6d
+guid: d953ea3a7d5e37b4cac957f5c9eb214a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7780619108686187649
-    second: Rounded Rectangle 50%_0
+      213: -1854253849714482944
+    second: pixil-frame-0 (1) 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rounded Rectangle 50%_0
+      name: pixil-frame-0 (1) 1_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 64
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -114,8 +114,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f73b426e420b50490800000000000000
-      internalID: -7780619108686187649
+      spriteID: 0012e5ca2fd5446e0800000000000000
+      internalID: -1854253849714482944
       vertices: []
       indices: 
       edges: []
@@ -130,8 +130,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      Rounded Rectangle 50%_0: -7780619108686187649
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
