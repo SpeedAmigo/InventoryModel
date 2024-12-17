@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      health-armor 32px_0: 443321712048615137
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ammo-rifle 32px_0: 1882342142778476069
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

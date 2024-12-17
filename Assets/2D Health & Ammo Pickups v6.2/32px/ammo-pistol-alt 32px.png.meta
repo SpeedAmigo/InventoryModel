@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ammo-pistol-alt 32px_0: 5882814255897414653
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

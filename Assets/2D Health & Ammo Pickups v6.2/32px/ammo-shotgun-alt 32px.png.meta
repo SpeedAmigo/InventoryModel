@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ammo-shotgun-alt 32px_0: -3830131758449928850
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
