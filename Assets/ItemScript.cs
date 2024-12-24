@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ItemScript : MonoBehaviour
@@ -32,21 +30,21 @@ public class ItemScript : MonoBehaviour
         if (_rectTransform.rotation != firstRotation)
         {
             targetRotation = firstRotation;
+            _dragAndDrop.flipped = false;
         }
         else
         {
             targetRotation = secondRotation;
+            _dragAndDrop.flipped = true;
         }
-
-        // Rotate smoothly over time
+        
         while (elapsedTime < rotationTime)
         {
             _rectTransform.rotation = Quaternion.Lerp(_rectTransform.rotation, targetRotation, elapsedTime / rotationTime);
-            elapsedTime += Time.deltaTime; // Increase elapsed time
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
-
-        // Ensure the final rotation is exactly the target rotation
+        
         _rectTransform.rotation = targetRotation;
         _coroutineRunning = false;
     }

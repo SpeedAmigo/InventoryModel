@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CellScript : MonoBehaviour
@@ -20,17 +19,6 @@ public class CellScript : MonoBehaviour
         
         _baseColor = _image.color;
     }
-/*
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        _image.color = _isOccupied ? _occupiedColor : _avalibleColor;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        _image.color = _baseColor;
-    }
-*/
     private void Update()
     {
         if (isHit)
@@ -41,10 +29,5 @@ public class CellScript : MonoBehaviour
         {
             _image.color = _baseColor;
         }
-    }
-
-    public void ChangeColor()
-    {
-        _image.color = _isOccupied ? _occupiedColor : _avalibleColor;
     }
 }
