@@ -1,43 +1,67 @@
+using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
     private RectTransform _rectTransform;
-    public bool isHeld;
-    private Vector2 _originalPosition;
     
-    /// <summary>
-    ///  saved for later maybe come in handy
-    /// </summary>
-    /*
-    private Vector2 ScreenPoint()
-    {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle
-        (
-            canvas.transform as RectTransform, 
-            Input.mousePosition, 
-            canvas.worldCamera, out var localPoint
-        );
-        
-        return localPoint;
-    }
-    */
+    public bool isHeld;
+    
+    private Vector2 _originalPosition;
+    private CellScript[] _currentCells;
+
+    [SerializeField] private Vector2 boxSize;
     
     private void Update()
     {
         if (isHeld)
         {
-            //_rectTransform.anchoredPosition = ScreenPoint();
             _rectTransform.position = Input.mousePosition;
+            
+            Collider2D[] hits = Physics2D.OverlapBoxAll
+            (
+                _rectTransform.position,
+                new Vector2(_rectTransform.sizeDelta.x * boxSize.x, _rectTransform.sizeDelta.y * boxSize.y),
+                0
+            );
+            
+            
+            
+            // Reset previously highlighted cells
+            if (_currentCells != null)
+            {
+                foreach (var cell in _currentCells)
+                {
+                    cell.isHit = false;
+                }
+            }
+
+            // Highlight new cells
+            _currentCells = null;
+            if (hits.Length > 0)
+            {
+                _currentCells = new CellScript[hits.Length];
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    if (hits[i].TryGetComponent(out CellScript cell))
+                    {
+                        cell.isHit = true;
+                        _currentCells[i] = cell;
+                    }
+                }
+            }
         }
         
         if (isHeld && Input.GetMouseButtonDown(1))
         {
             isHeld = false;
-            //Debug.Log("back to previous position");
             _rectTransform.position = _originalPosition;
+            
+            //_currentCell.isHit = false;
+            //_currentCell = null;
         }
     }
     
@@ -50,11 +74,9 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             {
                 _originalPosition = _rectTransform.position;
                 _rectTransform.position = Input.mousePosition;
-                //Debug.Log(_originalPosition);
             }
 
             isHeld = !isHeld;
-            //Debug.Log(_isHeld? "StartedDrag" : "StoppedDrag");
         }
     }
     
