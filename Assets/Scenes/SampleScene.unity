@@ -6910,8 +6910,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad24ec8369a0c8e40a13546fe5fd4ea2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _box: {fileID: 0}
   isHeld: 0
   flipped: 0
+  _currentCells: []
   boxSize: {x: 0.666, y: 0.5}
 --- !u!114 &2127706141
 MonoBehaviour:

@@ -1,16 +1,16 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
     private RectTransform _rectTransform;
+    private GameObject _box;
     
     public bool isHeld;
     public bool flipped;
     
     private Vector2 _originalPosition;
-    private CellScript[] _currentCells;
+    [SerializeField] private CellScript[] _currentCells;
 
     [SerializeField] private Vector2 boxSize;
 
@@ -49,6 +49,34 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             }
         }
     }
+
+    private void SnapToTheNearestCell()
+    {
+        Vector3[] corners = new Vector3[4];
+        _box.GetComponent<RectTransform>().GetWorldCorners(corners);
+        Vector3 bottomLeftCorner = corners[0]; // bottom left is at index 0
+            
+
+        CellScript closestCell = null;
+        float closestDistance = float.MaxValue;
+            
+        foreach (var cell in _currentCells)
+        {
+            float distance = Vector3.Distance(bottomLeftCorner, cell.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestCell = cell;
+            }
+        }
+
+        if (closestCell != null)
+        {
+            Vector3 offset = _rectTransform.position - bottomLeftCorner;
+                
+            _rectTransform.position = closestCell.transform.position + offset;
+        }
+    }
     
     private void SetCellToFalse()
     {
@@ -61,7 +89,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     
     private void Update()
     {
-        
         if (isHeld)
         {
             _rectTransform.position = Input.mousePosition;
@@ -88,17 +115,33 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 _rectTransform.position = Input.mousePosition;
             }
             
-            if (isHeld && _currentCells != null)
+            if (isHeld && _currentCells != null && _currentCells.Length == 6)
             {
+                SnapToTheNearestCell();
                 SetCellToFalse();
             }
 
             isHeld = !isHeld;
         }
     }
+
+    private void CreateBox()
+    {
+        GameObject newBox = new GameObject("box", typeof(RectTransform));
+        
+        newBox.transform.SetParent(transform);
+        newBox.transform.localPosition = Vector3.zero;
+        
+        RectTransform rectTransform = newBox.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(_rectTransform.rect.size.x * boxSize.x,_rectTransform.rect.size.y * boxSize.y);
+        
+        _box = newBox;
+    }
     
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
+        
+        CreateBox();
     }
 }

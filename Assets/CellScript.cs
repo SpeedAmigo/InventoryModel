@@ -16,7 +16,6 @@ public class CellScript : MonoBehaviour
     {
         _image = GetComponent<Image>();
         
-        
         _baseColor = _image.color;
     }
     private void Update()
