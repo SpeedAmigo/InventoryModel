@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class CellScript : MonoBehaviour
@@ -7,8 +8,9 @@ public class CellScript : MonoBehaviour
     [SerializeField] private Color _avalibleColor = Color.green;
     [SerializeField] private Color _occupiedColor = Color.red;
 
-    [SerializeField] private bool _isOccupied;
+    public bool isOccupied;
     public bool isHit;
+    public GameObject item;
     
     private Image _image;
 
@@ -22,7 +24,7 @@ public class CellScript : MonoBehaviour
     {
         if (isHit)
         {
-            _image.color = _isOccupied ? _occupiedColor : _avalibleColor;
+            _image.color = isOccupied ? _occupiedColor : _avalibleColor;
         }
         else
         {

@@ -48,6 +48,12 @@ public class ItemScript : MonoBehaviour
         _rectTransform.rotation = targetRotation;
         _coroutineRunning = false;
     }
+
+    private void SpaceNeedInt()
+    {
+        int space = cellsSize.x * cellsSize.y;
+        _dragAndDrop.spaceNeed = space;
+    }
     
     private void Awake()
     {
@@ -55,6 +61,7 @@ public class ItemScript : MonoBehaviour
         _dragAndDrop = GetComponent<DragAndDrop>();
         
         SetObjectSize();
+        SpaceNeedInt();
     }
 
     private void Update()

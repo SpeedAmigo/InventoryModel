@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -5,6 +7,8 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
     private RectTransform _rectTransform;
     private GameObject _box;
+
+    private bool _initializeOverlap;
     
     public bool isHeld;
     public bool flipped;
@@ -13,6 +17,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     [SerializeField] private CellScript[] _currentCells;
 
     [SerializeField] private Vector2 boxSize;
+    public int spaceNeed;
 
     private void OverlapCalculations()
     {
@@ -24,7 +29,9 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             new Vector2(_rectTransform.rect.size.x * boxSize.x, _rectTransform.rect.size.y * boxSize.y),
             rotationAngle
         );
-            
+        
+        Debug.Log(hits.Length);
+        
         // Reset previously highlighted cells
         if (_currentCells != null)
         {
@@ -45,6 +52,11 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 {
                     cell.isHit = true;
                     _currentCells[i] = cell;
+                    if (cell.item == gameObject) // reset item occupancy
+                    {
+                        cell.isOccupied = false;
+                        cell.isOccupied = false;
+                    }
                 }
             }
         }
@@ -68,6 +80,9 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 closestDistance = distance;
                 closestCell = cell;
             }
+            
+            cell.isOccupied = true;
+            cell.item = gameObject;
         }
 
         if (closestCell != null)
@@ -104,6 +119,19 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             SetCellToFalse();
         }
     }
+
+    private bool AllCellsNotOccupied()
+    {
+        if (_currentCells == null) return false;
+        foreach (var cell in _currentCells)
+        {
+            if (cell.isOccupied)
+            {
+                return false;
+            }
+        }
+        return true; 
+    }
     
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -115,7 +143,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 _rectTransform.position = Input.mousePosition;
             }
             
-            if (isHeld && _currentCells != null && _currentCells.Length == 6)
+            if (isHeld && _currentCells != null && _currentCells.Length == spaceNeed && AllCellsNotOccupied())
             {
                 SnapToTheNearestCell();
                 SetCellToFalse();
