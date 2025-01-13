@@ -7,7 +7,8 @@ public class CellScript : MonoBehaviour
     [SerializeField] private Color _baseColor;
     [SerializeField] private Color _avalibleColor = Color.green;
     [SerializeField] private Color _occupiedColor = Color.red;
-
+    
+    public ObjectType cellType;
     public bool isOccupied;
     public bool isHit;
     public GameObject item;

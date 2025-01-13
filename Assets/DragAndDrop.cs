@@ -15,6 +15,8 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     
     private Vector2 _originalPosition;
     [SerializeField] private CellScript[] _currentCells;
+    
+    [SerializeField] private ObjectType _objectType;
 
     [SerializeField] private Vector2 boxSize;
     public int spaceNeed;
@@ -29,8 +31,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             new Vector2(_rectTransform.rect.size.x * boxSize.x, _rectTransform.rect.size.y * boxSize.y),
             rotationAngle
         );
-        
-        Debug.Log(hits.Length);
         
         // Reset previously highlighted cells
         if (_currentCells != null)
@@ -118,6 +118,17 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             
             SetCellToFalse();
         }
+        
+        if (transform.position.x < 1650f)
+        {
+            boxSize.x = 0.0001f;
+            boxSize.y = 0.0001f;
+        }
+        else
+        {
+            boxSize.x = 0.666f;
+            boxSize.y = 0.5f;
+        }
     }
 
     private bool AllCellsNotOccupied()
@@ -132,6 +143,19 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         }
         return true; 
     }
+
+    private bool AllCellsAnyType()
+    {
+        if (_currentCells == null) return false;
+        foreach (var cell in _currentCells)
+        {
+            if (cell.cellType != ObjectType.Any)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
     
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -141,15 +165,22 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             {
                 _originalPosition = _rectTransform.position;
                 _rectTransform.position = Input.mousePosition;
+                isHeld = !isHeld;
             }
             
-            if (isHeld && _currentCells != null && _currentCells.Length == spaceNeed && AllCellsNotOccupied())
+            if (isHeld && _currentCells != null && _currentCells.Length == spaceNeed && AllCellsNotOccupied() && AllCellsAnyType())
             {
                 SnapToTheNearestCell();
                 SetCellToFalse();
+                isHeld = !isHeld;
             }
 
-            isHeld = !isHeld;
+            if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == _objectType)
+            {
+                SnapToTheNearestCell();
+                SetCellToFalse();
+                isHeld = !isHeld;
+            }
         }
     }
 
