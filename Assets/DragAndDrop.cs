@@ -5,10 +5,9 @@ using UnityEngine.EventSystems;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
+    private Canvas _canvas;
     private RectTransform _rectTransform;
     private GameObject _box;
-
-    private bool _initializeOverlap;
     
     public bool isHeld;
     public bool flipped;
@@ -20,7 +19,16 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 
     [SerializeField] private Vector2 boxSize;
     public int spaceNeed;
-
+    
+    private Vector2 BoxScaledSize()
+    {
+        return new Vector2
+        (
+            _rectTransform.rect.size.x * boxSize.x * _canvas.scaleFactor,
+            _rectTransform.rect.size.y * boxSize.y * _canvas.scaleFactor
+        );
+    }
+    
     private void OverlapCalculations()
     {
         float rotationAngle = _rectTransform.rotation.eulerAngles.z;
@@ -28,9 +36,11 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         Collider2D[] hits = Physics2D.OverlapBoxAll
         (
             _rectTransform.position,
-            new Vector2(_rectTransform.rect.size.x * boxSize.x, _rectTransform.rect.size.y * boxSize.y),
+            BoxScaledSize(),
             rotationAngle
         );
+        
+        Debug.Log(hits.Length);
         
         // Reset previously highlighted cells
         if (_currentCells != null)
@@ -82,6 +92,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             }
             
             cell.isOccupied = true;
+            cell.isHit = false;
             cell.item = gameObject;
         }
 
@@ -117,17 +128,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             _rectTransform.position = _originalPosition;
             
             SetCellToFalse();
-        }
-        
-        if (transform.position.x < 1650f)
-        {
-            boxSize.x = 0.0001f;
-            boxSize.y = 0.0001f;
-        }
-        else
-        {
-            boxSize.x = 0.666f;
-            boxSize.y = 0.5f;
         }
     }
 
@@ -192,7 +192,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         newBox.transform.localPosition = Vector3.zero;
         
         RectTransform rectTransform = newBox.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(_rectTransform.rect.size.x * boxSize.x,_rectTransform.rect.size.y * boxSize.y);
+        rectTransform.sizeDelta = BoxScaledSize();
         
         _box = newBox;
     }
@@ -200,7 +200,21 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
+        _canvas = GetComponentInParent<Canvas>();
         
         CreateBox();
+    }
+
+    private IEnumerator DelayOnFrame()
+    {
+        yield return new WaitForEndOfFrame();
+        OverlapCalculations();
+        SnapToTheNearestCell();
+    }
+
+    private void OnEnable()
+    {
+        Canvas.ForceUpdateCanvases();
+        StartCoroutine(DelayOnFrame());
     }
 }
