@@ -184,6 +184,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 _originalPosition = _rectTransform.position;
                 _rectTransform.position = Input.mousePosition;
                 isHeld = !isHeld;
+                EventManager.InvokeItemIsHeld(transform);
             }
             
             if (isHeld && _currentCells != null && _currentCells.Length == spaceNeed && AllCellsNotOccupied() && AllCellsAnyType())
@@ -191,6 +192,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 SnapToTheNearestCell();
                 SetCellToFalse();
                 isHeld = !isHeld;
+                EventManager.InvokeItemSnapped(transform);
             }
 
             if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == item.objectType)
