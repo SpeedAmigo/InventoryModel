@@ -10,11 +10,14 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     private Canvas _canvas;
     private RectTransform _rectTransform;
     private GameObject _box;
+    private ItemScript _itemScript;
 
     public ItemSO item;
     public bool isHeld;
     public bool flipped;
 
+    private bool _coroutineRunning = false;
+    
     private Vector2 _originalPosition;
     [SerializeField] private CellScript[] _currentCells;
 
@@ -133,6 +136,11 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R) && isHeld && !_coroutineRunning)
+        {
+            StartCoroutine(RotateItem());
+        }
+        
         if (isHeld)
         {
             _rectTransform.position = Input.mousePosition;
@@ -184,6 +192,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 _originalPosition = _rectTransform.position;
                 _rectTransform.position = Input.mousePosition;
                 isHeld = !isHeld;
+                _itemScript.SetObjectSize();
                 EventManager.InvokeItemIsHeld(transform);
             }
             
@@ -197,11 +206,60 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 
             if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == item.objectType)
             {
-                SnapToTheNearestCell();
+                RectTransform parentRectTransform = _currentCells[0].GetComponent<RectTransform>();
+                if (parentRectTransform != null)
+                {
+                    _rectTransform.position = _currentCells[0].transform.position;
+                    _rectTransform.rotation = _currentCells[0].transform.rotation;
+                    
+                    _rectTransform.sizeDelta = parentRectTransform.rect.size;
+                    
+                    transform.SetParent(_currentCells[0].transform);
+                }
+                
                 SetCellToFalse();
                 isHeld = !isHeld;
             }
         }
+    }
+    private IEnumerator RotateItem()
+    {
+        _coroutineRunning = true;
+        
+        float elapsedTime = 0;
+        float rotationTime = 0.3f;
+
+        Quaternion targetRotation;
+        
+        Quaternion firstRotation = Quaternion.Euler(0, 0, 0);
+        Quaternion secondRotation = Quaternion.Euler(0, 0, -90);
+
+        if (_rectTransform.rotation != firstRotation)
+        {
+            targetRotation = firstRotation;
+            flipped = false;
+        }
+        else
+        {
+            targetRotation = secondRotation;
+            flipped = true;
+        }
+        
+        while (elapsedTime < rotationTime)
+        {
+            _rectTransform.rotation = Quaternion.Lerp(_rectTransform.rotation, targetRotation, elapsedTime / rotationTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        _rectTransform.rotation = targetRotation;
+        _coroutineRunning = false;
+    }
+    
+    private void SpaceNeedInt()
+    {
+        int space = item.itemSize.x * item.itemSize.y;
+        spaceNeed = space;
     }
 
     private void CreateBox()
@@ -221,10 +279,14 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     {
         _rectTransform = GetComponent<RectTransform>();
         _canvas = GetComponentInParent<Canvas>();
+        _itemScript = GetComponent<ItemScript>();
+
+        item = _itemScript.itemSo;
     }
 
     private void Start()
     {
+        SpaceNeedInt();
         SetMultiplier(item.itemSize);
         CreateBox();
     }
