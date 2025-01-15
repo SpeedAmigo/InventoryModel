@@ -1,34 +1,52 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
     private Canvas _canvas;
     private RectTransform _rectTransform;
     private GameObject _box;
-    
+
+    public ItemSO item;
     public bool isHeld;
     public bool flipped;
-    
+
     private Vector2 _originalPosition;
     [SerializeField] private CellScript[] _currentCells;
-    
-    [SerializeField] private ObjectType _objectType;
 
-    [SerializeField] private Vector2 boxSize;
+    [SerializeField] private Vector2 boxMultiplier;
+    
     public int spaceNeed;
+
+    private void SetMultiplier(Vector2Int value)
+    {
+        Dictionary<int, float> multiplier = new Dictionary<int, float>
+        {
+            { 1, 0.0001f },
+            { 2 , 0.5f},
+            { 3 , 0.666f}
+        };
+        
+        float xMultiplier = multiplier.ContainsKey(value.x) ? multiplier[value.x] : 1.0f;
+        float yMultiplier = multiplier.ContainsKey(value.y) ? multiplier[value.y] : 1.0f;
+        
+        boxMultiplier = new Vector2(xMultiplier, yMultiplier);
+    }
+    
     
     private Vector2 BoxScaledSize()
     {
         return new Vector2
         (
-            _rectTransform.rect.size.x * boxSize.x * _canvas.scaleFactor,
-            _rectTransform.rect.size.y * boxSize.y * _canvas.scaleFactor
+            _rectTransform.rect.size.x * boxMultiplier.x * _canvas.scaleFactor,
+            _rectTransform.rect.size.y * boxMultiplier.y * _canvas.scaleFactor
         );
     }
-    
+
     private void OverlapCalculations()
     {
         float rotationAngle = _rectTransform.rotation.eulerAngles.z;
@@ -175,7 +193,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 isHeld = !isHeld;
             }
 
-            if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == _objectType)
+            if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == item.objectType)
             {
                 SnapToTheNearestCell();
                 SetCellToFalse();
@@ -201,7 +219,11 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     {
         _rectTransform = GetComponent<RectTransform>();
         _canvas = GetComponentInParent<Canvas>();
-        
+    }
+
+    private void Start()
+    {
+        SetMultiplier(item.itemSize);
         CreateBox();
     }
 
