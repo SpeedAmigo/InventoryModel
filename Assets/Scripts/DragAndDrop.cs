@@ -310,6 +310,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     private IEnumerator DelayOnFrame()
     {
         yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
         OverlapCalculations();
         SnapToTheNearestCell();
     }
