@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class GroundItem : MonoBehaviour, IPointerClickHandler
+public class GroundItem : MonoBehaviour
 {
     public ItemSO itemData;
-    
-    public void OnPointerClick(PointerEventData eventData)
+
+    public void AddItem()
     {
         ItemManager.Instance.TryAddItem(this);
     }

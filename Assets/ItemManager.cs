@@ -25,7 +25,7 @@ public class ItemManager : MonoBehaviour
         {
             for (int y = 0; y < itemSize.y; y++)
             {
-                Vector2Int currentPosition = new Vector2Int(startPosition.y + y, startPosition.x + x);
+                Vector2Int currentPosition = new Vector2Int(startPosition.x + y, startPosition.y + x);
 
                 if (cellDictionary.TryGetValue(currentPosition, out CellScript cellScript))
                 {
@@ -60,9 +60,9 @@ public class ItemManager : MonoBehaviour
     {
         bool spaceFound = false;
         
-        for (int i = 0; i < allCellScripts.Length; i++)
+        foreach (var i in allCellScripts)
         {
-            if (CheckSpace(allCellScripts[i].gridPosition, groundItem.itemData.itemSize, out List<CellScript> cellScripts))
+            if (CheckSpace(i.gridPosition, groundItem.itemData.itemSize, out List<CellScript> cellScripts))
             {
                 GameObject template = Instantiate(itemPrefab, itemsSlots.transform);
                 ItemScript item = template.GetComponent<ItemScript>();
