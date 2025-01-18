@@ -25,7 +25,10 @@ public class ItemScript : MonoBehaviour
     {
         _rectTransform = GetComponent<RectTransform>();
         _image = GetComponent<Image>();
-        
+    }
+
+    private void Start()
+    {
         SetObjectSize();
         SetItemImage();
     }

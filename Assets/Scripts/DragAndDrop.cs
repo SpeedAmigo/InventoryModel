@@ -7,9 +7,11 @@ using UnityEngine.Serialization;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
+    public CellScript passedCell;
+    
     private Canvas _canvas;
-    private RectTransform _rectTransform;
-    private GameObject _box;
+    public RectTransform _rectTransform;
+    public GameObject _box;
     private ItemScript _itemScript;
 
     public ItemSO item;
@@ -61,7 +63,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             rotationAngle
         );
         
-        Debug.Log(hits.Length);
+        //Debug.Log(hits.Length);
         
         // Reset previously highlighted cells
         if (_currentCells != null)
@@ -123,6 +125,16 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 
             _rectTransform.position = closestCell.transform.position + offset;
         }
+    }
+
+    public void PositionAfterAdding(CellScript cell)
+    {
+        Vector3[] corners = new Vector3[4];
+        _box.GetComponent<RectTransform>().GetWorldCorners(corners);
+        Vector3 bottomLeftCorner = corners[0];
+        
+        Vector3 offset = _rectTransform.position - bottomLeftCorner;
+        _rectTransform.position = cell.transform.position + offset;
     }
     
     private void SetCellToFalse()
@@ -280,15 +292,19 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         _rectTransform = GetComponent<RectTransform>();
         _canvas = GetComponentInParent<Canvas>();
         _itemScript = GetComponent<ItemScript>();
-
-        item = _itemScript.itemSo;
     }
 
     private void Start()
     {
+        item = _itemScript.itemSo;
+        
         SpaceNeedInt();
         SetMultiplier(item.itemSize);
         CreateBox();
+        if (passedCell != null)
+        {
+            PositionAfterAdding(passedCell);
+        }
     }
 
     private IEnumerator DelayOnFrame()

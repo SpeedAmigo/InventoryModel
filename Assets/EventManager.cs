@@ -7,7 +7,7 @@ public static class EventManager
 {
     public static event Action<Transform> ItemIsHeld;
     public static event Action<Transform> ItemSnapped;
-
+    
     public static void InvokeItemIsHeld(Transform item)
     {
         ItemIsHeld?.Invoke(item);
