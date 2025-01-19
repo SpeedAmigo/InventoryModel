@@ -1,9 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
@@ -19,6 +17,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     public bool flipped;
 
     private bool _coroutineRunning = false;
+    private Vector2 originalMultiplier;
     
     private Vector2 _originalPosition;
     [SerializeField] private CellScript[] _currentCells;
@@ -40,6 +39,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         float yMultiplier = multiplier.ContainsKey(value.y) ? multiplier[value.y] : 1.0f;
         
         boxMultiplier = new Vector2(xMultiplier, yMultiplier);
+        originalMultiplier = boxMultiplier;
     }
     
     
@@ -118,6 +118,9 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             cell.isHit = false;
             cell.item = gameObject;
         }
+        
+        //ItemManager.Instance.itemsList.Add(this);
+        ItemManager.Instance.AddItemToList(this);
 
         if (closestCell != null)
         {
@@ -139,11 +142,14 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     
     private void SetCellToFalse()
     {
-        foreach (var cell in _currentCells)
+        if (_currentCells != null)
         {
-            cell.isHit = false;
+            foreach (var cell in _currentCells)
+            {
+                cell.isHit = false;
+            }
+            _currentCells = null;
         }
-        _currentCells = null;
     }
     
     private void Update()
@@ -157,7 +163,18 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         {
             _rectTransform.position = Input.mousePosition;
             
+            MultiplierChanger();
             OverlapCalculations();
+        }
+
+        if (isHeld && Input.GetMouseButtonDown(0))
+        {
+            if (IsOutsideOfBox())
+            {
+                //ItemManager.Instance.itemsList.Remove(this);
+                ItemManager.Instance.RemoveItemFromList(this);
+                Destroy(gameObject);
+            }
         }
         
         if (isHeld && Input.GetMouseButtonDown(1))
@@ -167,6 +184,31 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             
             SetCellToFalse();
         }
+    }
+
+    private void MultiplierChanger()
+    {
+        
+        //Vector2 smallMultiplier = 
+        
+        if (RectTransformUtility.RectangleContainsScreenPoint(ItemManager.Instance.multiplierBox, Input.mousePosition))
+        {
+            boxMultiplier = new Vector2(0.0001f, 0.0001f);
+        }
+        else
+        {
+            boxMultiplier = originalMultiplier;
+        }
+    }
+
+    private bool IsOutsideOfBox()
+    {
+        if (!RectTransformUtility.RectangleContainsScreenPoint(ItemManager.Instance.backgroundBox, Input.mousePosition))
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     private bool AllCellsNotOccupied()
@@ -228,6 +270,8 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                     
                     transform.SetParent(_currentCells[0].transform);
                 }
+                
+                ItemManager.Instance.RemoveItemFromList(this);
                 
                 SetCellToFalse();
                 isHeld = !isHeld;

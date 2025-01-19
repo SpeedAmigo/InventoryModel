@@ -8,8 +8,14 @@ public class ItemManager : MonoBehaviour
     [SerializeField] private GameObject itemsSlots;
     [SerializeField] private GameObject itemsParent;
     [SerializeField] private GameObject itemPrefab;
+    public RectTransform backgroundBox;
+    public RectTransform multiplierBox;
+    
+    public List<DragAndDrop> itemsList = new();
     
     public Dictionary<Vector2Int, CellScript> cellDictionary = new();
+
+    public float inventoryWeight;
     
     private void Awake()
     {
@@ -17,6 +23,36 @@ public class ItemManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    private void UpdateInventoryWeight()
+    {
+        inventoryWeight = 0;
+        foreach (var item in itemsList)
+        {
+            if (item.item != null)
+            {
+                inventoryWeight += item.item.itemWeight;
+            }
+        }
+    }
+
+    public void AddItemToList(DragAndDrop item)
+    {
+        if (!itemsList.Contains(item))
+        {
+            itemsList.Add(item);
+            UpdateInventoryWeight();
+        }
+    }
+
+    public void RemoveItemFromList(DragAndDrop item)
+    {
+        if (itemsList.Contains(item))
+        {
+            itemsList.Remove(item);
+            UpdateInventoryWeight();
+        }
+    }
+    
     private bool CheckSpace(Vector2Int startPosition, Vector2Int itemSize, out List<CellScript> cellScripts)
     {
         List<CellScript> cellsInArea = new();

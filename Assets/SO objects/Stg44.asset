@@ -15,4 +15,4 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: e577cb09a40b82148a488851116ed574, type: 3}
   itemSize: {x: 3, y: 2}
   objectType: 0
-  itemWeight: 0
+  itemWeight: 10
