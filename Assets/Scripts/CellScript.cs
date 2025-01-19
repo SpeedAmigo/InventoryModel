@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class CellScript : MonoBehaviour
@@ -19,13 +18,11 @@ public class CellScript : MonoBehaviour
     public void SetGridPosition(Vector2Int position)
     {
         gridPosition = position;
-        //Debug.Log(gridPosition);
     }
 
     private void Awake()
     {
         _image = GetComponent<Image>();
-        
         _baseColor = _image.color;
     }
     private void Update()

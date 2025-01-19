@@ -5,27 +5,144 @@ using UnityEngine.EventSystems;
 
 public class DragAndDrop : MonoBehaviour, IPointerClickHandler
 {
-    public CellScript passedCell;
+    [HideInInspector] public CellScript passedCell;
+    [HideInInspector] public RectTransform _rectTransform;
+    [HideInInspector] public GameObject _box;
+    [HideInInspector] public ItemSO item;
+    [HideInInspector] public bool isHeld;
+    [HideInInspector] public bool flipped;
+    [HideInInspector] public int spaceNeed;
     
     private Canvas _canvas;
-    public RectTransform _rectTransform;
-    public GameObject _box;
     private ItemScript _itemScript;
-
-    public ItemSO item;
-    public bool isHeld;
-    public bool flipped;
-
     private bool _coroutineRunning = false;
-    private Vector2 originalMultiplier;
-    
+    private CellScript[] _currentCells;
+    private Vector2 _originalMultiplier;
     private Vector2 _originalPosition;
-    [SerializeField] private CellScript[] _currentCells;
-
-    [SerializeField] private Vector2 boxMultiplier;
+    private Vector2 _boxMultiplier;
     
-    public int spaceNeed;
+    private void Awake()
+    {
+        _rectTransform = GetComponent<RectTransform>();
+        _canvas = GetComponentInParent<Canvas>();
+        _itemScript = GetComponent<ItemScript>();
+    }
+    
+    private void Start()
+    {
+        item = _itemScript.itemSo;
+        
+        SpaceNeedInt();
+        SetMultiplier(item.itemSize);
+        CreateBox();
+        
+        if (passedCell != null)
+        {
+            PositionAfterAdding(passedCell);
+        }
+    }
+    
+    private void Update()
+    {
+        HandleRotationInput();
+        HandleDragging();
+        HandleRelease();
+    }
+    #region UpdateMethods
 
+    private void HandleRotationInput()
+    {
+        if (Input.GetKeyDown(KeyCode.R) && isHeld && !_coroutineRunning)
+        {
+            StartCoroutine(RotateItem());
+        }
+    }
+
+    private void HandleDragging()
+    {
+        if (!isHeld) return;
+        
+        _rectTransform.position = Input.mousePosition;
+        MultiplierChanger();
+        OverlapCalculations();
+    }
+    
+    private void HandleRelease()
+    {
+        if (isHeld && Input.GetMouseButtonDown(0))
+        {
+            if (IsOutsideOfBox())
+            {
+                ItemManager.Instance.RemoveItemFromList(this);
+                Destroy(gameObject);
+            }
+        }
+        
+        if (isHeld && Input.GetMouseButtonDown(1))
+        {
+            isHeld = false;
+            _rectTransform.position = _originalPosition;
+            
+            SetCellToFalse();
+        }
+    }
+    #endregion
+    
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+        
+        BeginDrag();
+        TrySnapToCell();
+        TryPlaceInSocket();
+    }
+    #region PointerClickMethods
+    private void BeginDrag()
+    {
+        if (!isHeld)
+        {
+            _originalPosition = _rectTransform.position;
+            _rectTransform.position = Input.mousePosition;
+            isHeld = !isHeld;
+            _itemScript.SetObjectSize();
+            EventManager.InvokeItemIsHeld(transform);
+        }
+    }
+    
+    private void TrySnapToCell()
+    {
+        if (isHeld && _currentCells != null && _currentCells.Length == spaceNeed && AllCellsNotOccupied() && AllCellsAnyType())
+        {
+            SnapToTheNearestCell();
+            SetCellToFalse();
+            isHeld = !isHeld;
+            EventManager.InvokeItemSnapped(transform);
+        }
+    }
+
+    private void TryPlaceInSocket()
+    {
+        if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == item.objectType)
+        {
+            RectTransform parentRectTransform = _currentCells[0].GetComponent<RectTransform>();
+            if (parentRectTransform != null)
+            {
+                _rectTransform.position = _currentCells[0].transform.position;
+                _rectTransform.rotation = _currentCells[0].transform.rotation;
+                    
+                _rectTransform.sizeDelta = parentRectTransform.rect.size;
+                    
+                transform.SetParent(_currentCells[0].transform);
+            }
+                
+            ItemManager.Instance.RemoveItemFromList(this);
+                
+            SetCellToFalse();
+            isHeld = !isHeld;
+        }
+    }
+    #endregion
+    
     private void SetMultiplier(Vector2Int value)
     {
         Dictionary<int, float> multiplier = new Dictionary<int, float>
@@ -38,20 +155,19 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         float xMultiplier = multiplier.ContainsKey(value.x) ? multiplier[value.x] : 1.0f;
         float yMultiplier = multiplier.ContainsKey(value.y) ? multiplier[value.y] : 1.0f;
         
-        boxMultiplier = new Vector2(xMultiplier, yMultiplier);
-        originalMultiplier = boxMultiplier;
+        _boxMultiplier = new Vector2(xMultiplier, yMultiplier);
+        _originalMultiplier = _boxMultiplier;
     }
-    
     
     private Vector2 BoxScaledSize()
     {
         return new Vector2
         (
-            _rectTransform.rect.size.x * boxMultiplier.x * _canvas.scaleFactor,
-            _rectTransform.rect.size.y * boxMultiplier.y * _canvas.scaleFactor
+            _rectTransform.rect.size.x * _boxMultiplier.x * _canvas.scaleFactor,
+            _rectTransform.rect.size.y * _boxMultiplier.y * _canvas.scaleFactor
         );
     }
-
+    
     private void OverlapCalculations()
     {
         float rotationAngle = _rectTransform.rotation.eulerAngles.z;
@@ -62,8 +178,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             BoxScaledSize(),
             rotationAngle
         );
-        
-        //Debug.Log(hits.Length);
         
         // Reset previously highlighted cells
         if (_currentCells != null)
@@ -94,7 +208,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             }
         }
     }
-
+    
     private void SnapToTheNearestCell()
     {
         Vector3[] corners = new Vector3[4];
@@ -119,7 +233,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
             cell.item = gameObject;
         }
         
-        //ItemManager.Instance.itemsList.Add(this);
         ItemManager.Instance.AddItemToList(this);
 
         if (closestCell != null)
@@ -130,7 +243,7 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void PositionAfterAdding(CellScript cell)
+    private void PositionAfterAdding(CellScript cell)
     {
         Vector3[] corners = new Vector3[4];
         _box.GetComponent<RectTransform>().GetWorldCorners(corners);
@@ -152,52 +265,15 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         }
     }
     
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.R) && isHeld && !_coroutineRunning)
-        {
-            StartCoroutine(RotateItem());
-        }
-        
-        if (isHeld)
-        {
-            _rectTransform.position = Input.mousePosition;
-            
-            MultiplierChanger();
-            OverlapCalculations();
-        }
-
-        if (isHeld && Input.GetMouseButtonDown(0))
-        {
-            if (IsOutsideOfBox())
-            {
-                //ItemManager.Instance.itemsList.Remove(this);
-                ItemManager.Instance.RemoveItemFromList(this);
-                Destroy(gameObject);
-            }
-        }
-        
-        if (isHeld && Input.GetMouseButtonDown(1))
-        {
-            isHeld = false;
-            _rectTransform.position = _originalPosition;
-            
-            SetCellToFalse();
-        }
-    }
-
     private void MultiplierChanger()
     {
-        
-        //Vector2 smallMultiplier = 
-        
         if (RectTransformUtility.RectangleContainsScreenPoint(ItemManager.Instance.multiplierBox, Input.mousePosition))
         {
-            boxMultiplier = new Vector2(0.0001f, 0.0001f);
+            _boxMultiplier = new Vector2(0.0001f, 0.0001f);
         }
         else
         {
-            boxMultiplier = originalMultiplier;
+            _boxMultiplier = _originalMultiplier;
         }
     }
 
@@ -207,7 +283,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         {
             return true;
         }
-        
         return false;
     }
 
@@ -237,47 +312,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         return true;
     }
     
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            if (!isHeld)
-            {
-                _originalPosition = _rectTransform.position;
-                _rectTransform.position = Input.mousePosition;
-                isHeld = !isHeld;
-                _itemScript.SetObjectSize();
-                EventManager.InvokeItemIsHeld(transform);
-            }
-            
-            if (isHeld && _currentCells != null && _currentCells.Length == spaceNeed && AllCellsNotOccupied() && AllCellsAnyType())
-            {
-                SnapToTheNearestCell();
-                SetCellToFalse();
-                isHeld = !isHeld;
-                EventManager.InvokeItemSnapped(transform);
-            }
-
-            if (isHeld && _currentCells != null && _currentCells.Length > 0 && _currentCells[0].cellType == item.objectType)
-            {
-                RectTransform parentRectTransform = _currentCells[0].GetComponent<RectTransform>();
-                if (parentRectTransform != null)
-                {
-                    _rectTransform.position = _currentCells[0].transform.position;
-                    _rectTransform.rotation = _currentCells[0].transform.rotation;
-                    
-                    _rectTransform.sizeDelta = parentRectTransform.rect.size;
-                    
-                    transform.SetParent(_currentCells[0].transform);
-                }
-                
-                ItemManager.Instance.RemoveItemFromList(this);
-                
-                SetCellToFalse();
-                isHeld = !isHeld;
-            }
-        }
-    }
     private IEnumerator RotateItem()
     {
         _coroutineRunning = true;
@@ -331,26 +365,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         _box = newBox;
     }
     
-    private void Awake()
-    {
-        _rectTransform = GetComponent<RectTransform>();
-        _canvas = GetComponentInParent<Canvas>();
-        _itemScript = GetComponent<ItemScript>();
-    }
-
-    private void Start()
-    {
-        item = _itemScript.itemSo;
-        
-        SpaceNeedInt();
-        SetMultiplier(item.itemSize);
-        CreateBox();
-        if (passedCell != null)
-        {
-            PositionAfterAdding(passedCell);
-        }
-    }
-
     private IEnumerator DelayOnFrame()
     {
         yield return new WaitForEndOfFrame();

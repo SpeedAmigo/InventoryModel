@@ -4,18 +4,16 @@ using UnityEngine;
 public class ItemManager : MonoBehaviour
 {
     public static ItemManager Instance;
+    public RectTransform backgroundBox;
+    public RectTransform multiplierBox;
+    public List<DragAndDrop> itemsList = new();
+    public Dictionary<Vector2Int, CellScript> cellDictionary = new();
+    public float inventoryWeight;
+    
     [SerializeField] private CellScript[] allCellScripts;
     [SerializeField] private GameObject itemsSlots;
     [SerializeField] private GameObject itemsParent;
     [SerializeField] private GameObject itemPrefab;
-    public RectTransform backgroundBox;
-    public RectTransform multiplierBox;
-    
-    public List<DragAndDrop> itemsList = new();
-    
-    public Dictionary<Vector2Int, CellScript> cellDictionary = new();
-
-    public float inventoryWeight;
     
     private void Awake()
     {

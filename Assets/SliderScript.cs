@@ -4,7 +4,6 @@ using UnityEngine.UI;
 public class SliderScript : MonoBehaviour
 {
     [SerializeField] private Slider slider;
-    
     [SerializeField] private float maxValue;
     
     private void Start()

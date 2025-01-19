@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,18 +7,7 @@ public class ItemScript : MonoBehaviour
     
     private RectTransform _rectTransform;
     private Image _image;
-    
     private int _oneUnitSize = 85;
-    
-    public void SetObjectSize()
-    {
-        _rectTransform.sizeDelta = new Vector2(_oneUnitSize * itemSo.itemSize.x, _oneUnitSize * itemSo.itemSize.y);
-    }
-
-    private void SetItemImage()
-    {
-        _image.sprite = itemSo.sprite;
-    }
     
     private void Awake()
     {
@@ -31,5 +19,15 @@ public class ItemScript : MonoBehaviour
     {
         SetObjectSize();
         SetItemImage();
+    }
+    
+    public void SetObjectSize()
+    {
+        _rectTransform.sizeDelta = new Vector2(_oneUnitSize * itemSo.itemSize.x, _oneUnitSize * itemSo.itemSize.y);
+    }
+
+    private void SetItemImage()
+    {
+        _image.sprite = itemSo.sprite;
     }
 }
