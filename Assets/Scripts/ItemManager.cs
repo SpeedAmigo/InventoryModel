@@ -106,11 +106,11 @@ public class ItemManager : MonoBehaviour
                 itemDrag.enabled = true;
                 
                 itemDrag.passedCell = cellScripts[0];
-                
-                //Debug.Log(allCellScripts[i].gridPosition);
+
                 foreach (CellScript cell in cellScripts)
                 {
                     cell.isOccupied = true;
+                    cell.item = itemDrag.gameObject;
                 }
                 
                 spaceFound = true;

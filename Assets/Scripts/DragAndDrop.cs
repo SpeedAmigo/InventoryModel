@@ -18,7 +18,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     private bool _coroutineRunning = false;
     private CellScript[] _currentCells;
     private Vector2 _originalMultiplier;
-    private Vector2 _originalPosition;
     private Vector2 _boxMultiplier;
     
     private void Awake()
@@ -77,14 +76,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
                 Destroy(gameObject);
             }
         }
-        
-        if (isHeld && Input.GetMouseButtonDown(1))
-        {
-            isHeld = false;
-            _rectTransform.position = _originalPosition;
-            
-            SetCellToFalse();
-        }
     }
     #endregion
     
@@ -101,7 +92,6 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
     {
         if (!isHeld)
         {
-            _originalPosition = _rectTransform.position;
             _rectTransform.position = Input.mousePosition;
             isHeld = !isHeld;
             _itemScript.SetObjectSize();
@@ -184,7 +174,14 @@ public class DragAndDrop : MonoBehaviour, IPointerClickHandler
         {
             foreach (var cell in _currentCells)
             {
-                cell.isHit = false;
+                if (cell != null)
+                {
+                    cell.isHit = false;
+                    if (cell.item == gameObject)
+                    {
+                        cell.isOccupied = false;
+                    }
+                }
             }
         }
 
